@@ -273,7 +273,7 @@ class MusicPlayer @Inject constructor(
         tracks: List<PlayableTrack>,
         startIndex: Int,
         endlessDiscover: Boolean,
-        sourceLabel: String,
+        sourceLabel: String = if (endlessDiscover) "Discover" else "LastWave",
     ) {
         if (tracks.isEmpty()) return
         discoverQueueLoadJob?.cancel()
@@ -518,6 +518,7 @@ class MusicPlayer @Inject constructor(
         tracks: List<PlayableTrack>,
         failedIndex: Int,
         endlessDiscover: Boolean,
+        sourceLabel: String = if (endlessDiscover) "Discover" else "LastWave",
     ) {
         val nextIndex = failedIndex + 1
         if (nextIndex !in tracks.indices) return
@@ -526,7 +527,7 @@ class MusicPlayer @Inject constructor(
             delay(UNAVAILABLE_SKIP_DELAY_MS)
             if (_state.value.currentIndex == failedIndex && !player.isPlaying) {
                 unavailableSkipJob = null
-                playQueueInternal(tracks, nextIndex, endlessDiscover)
+                playQueueInternal(tracks, nextIndex, endlessDiscover, sourceLabel)
             }
         }
     }
