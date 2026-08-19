@@ -54,7 +54,7 @@ data class PlayableTrack(
 )
 
 @Serializable
-private data class PersistedPlaybackSession(
+internal data class PersistedPlaybackSession(
     val version: Int = 1,
     val queue: List<PlayableTrack>,
     val currentIndex: Int,
