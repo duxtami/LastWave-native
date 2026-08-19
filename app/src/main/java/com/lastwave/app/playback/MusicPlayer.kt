@@ -743,7 +743,7 @@ private fun MediaItem.toPlayableTrack(): PlayableTrack = PlayableTrack(
     videoId = mediaId.takeUnless { it.startsWith("query:") },
 )
 
-private fun GeneratedTrack.toPlayableTrack() = PlayableTrack(
+fun GeneratedTrack.toPlayableTrack() = PlayableTrack(
     title = name,
     artist = artist,
     album = album,

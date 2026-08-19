@@ -1081,6 +1081,7 @@ private fun PlayerUtilityControls(state: MusicPlayerState, player: MusicPlayer) 
     }
 }
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 private fun QueuePanel(state: MusicPlayerState, player: MusicPlayer, modifier: Modifier = Modifier) {
     Column(modifier) {
