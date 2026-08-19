@@ -127,10 +127,10 @@ fun DiscoverScreen(onBack: () -> Unit = {}, viewModel: DiscoverViewModel = hiltV
     val playbackQueue = remember(state.tracks) { state.tracks.map(GeneratedTrack::toPlayableTrack) }
     val playFromDiscover: (GeneratedTrack) -> Unit = { track ->
         val index = state.tracks.indexOfFirst { it.key == track.key }.coerceAtLeast(0)
-        musicPlayer.playQueue(playbackQueue, index)
+        musicPlayer.playDiscoverQueue(playbackQueue, index)
     }
 
-    val shouldLoadMore by remember {
+    val shouldLoadMore by remember(listState, state.tracks.size) {
         derivedStateOf {
             val last = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
             last >= state.tracks.size - 3
