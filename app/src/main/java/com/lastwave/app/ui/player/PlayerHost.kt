@@ -925,7 +925,7 @@ private fun FullPlayer(
                                                         val event = awaitPointerEvent()
                                                         val change = event.changes.firstOrNull { it.id == down.id } ?: break
 
-                                                        if (change.changedToUp()) {
+                                                        if (!change.pressed) {
                                                             if (isDrag) {
                                                                 when {
                                                                     artworkDragX < -swipeThreshold -> player.next()
@@ -987,7 +987,7 @@ private fun FullPlayer(
                                             PlayerArtwork(track, Modifier.fillMaxSize(), 32.dp)
 
                                             // Double / Multi-tap Seek Feedback Overlay (Left / Right)
-                                            AnimatedVisibility(
+                                            androidx.compose.animation.AnimatedVisibility(
                                                 visible = seekOverlayDirection != null,
                                                 enter = fadeIn(tween(100)) + scaleIn(ExpressiveMotion.spatialSpring(), initialScale = 0.88f),
                                                 exit = fadeOut(tween(220)),
