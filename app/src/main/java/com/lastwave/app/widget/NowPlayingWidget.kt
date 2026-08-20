@@ -97,8 +97,11 @@ class NowPlayingWidget : GlanceAppWidget() {
     }
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val entryPoint = EntryPointAccessors.fromApplication(context, WidgetEntryPoint::class.java)
-        val scheme = entryPoint.themeRepository().uiState.value.colorScheme
+        val entryPoint = runCatching {
+            EntryPointAccessors.fromApplication(context.applicationContext, WidgetEntryPoint::class.java)
+        }.getOrNull()
+        val scheme = entryPoint?.themeRepository()?.uiState?.value?.colorScheme
+            ?: com.lastwave.app.ui.theme.Md3SchemeBuilder.buildScheme("#E03030", false)
 
         val darkThemeSurface = blendColor(scheme.surfaceContainerHigh, scheme.primary, 0.22f)
         val darkThemeRaised = blendColor(scheme.surfaceContainerHighest, scheme.primary, 0.34f)

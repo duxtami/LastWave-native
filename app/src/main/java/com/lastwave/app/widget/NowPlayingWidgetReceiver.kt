@@ -12,32 +12,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
-private val widgetReceiverScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
 abstract class LastWaveWidgetReceiver : GlanceAppWidgetReceiver() {
     override fun onEnabled(context: Context) {
         super.onEnabled(context)
-        triggerSync(context)
-    }
-
-    override fun onUpdate(
-        context: Context,
-        appWidgetManager: android.appwidget.AppWidgetManager,
-        appWidgetIds: IntArray,
-    ) {
-        super.onUpdate(context, appWidgetManager, appWidgetIds)
-        triggerSync(context)
-    }
-
-    private fun triggerSync(context: Context) {
-        val pendingResult = goAsync()
-        widgetReceiverScope.launch {
-            try {
-                WidgetUpdater.sync(context.applicationContext)
-            } finally {
-                pendingResult.finish()
-            }
-        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             runCatching {
                 NotificationListenerService.requestRebind(

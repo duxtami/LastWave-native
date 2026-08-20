@@ -813,11 +813,11 @@ private fun FullPlayer(
                                     overflow = TextOverflow.Ellipsis,
                                 )
                             }
-                            Spacer(Modifier.height(16.dp))
+                            Spacer(Modifier.height(14.dp))
                             SeekBar(state, player::seekTo)
-                            Spacer(Modifier.height(16.dp))
+                            Spacer(Modifier.height(14.dp))
                             MainControls(state, player)
-                            Spacer(Modifier.height(16.dp))
+                            Spacer(Modifier.height(20.dp))
                             PlayerUtilityControls(state, player)
                         }
                     }
