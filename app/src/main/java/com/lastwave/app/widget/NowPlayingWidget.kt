@@ -221,7 +221,7 @@ private fun PlayerWidget(state: WidgetUiState) {
             .padding(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        MiniArtwork(state.art, 68, state.isPlaying, state.animationFrame)
+        MiniArtwork(state.art, 76, state.isPlaying, state.animationFrame)
         Spacer(GlanceModifier.width(12.dp))
         Column(
             modifier = GlanceModifier.defaultWeight(),
@@ -338,7 +338,7 @@ private fun PlaybackControls(isPlaying: Boolean) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Row(
             modifier = GlanceModifier
-                .width(96.dp)
+                .width(88.dp)
                 .height(36.dp)
                 .background(GlanceTheme.colors.primary)
                 .cornerRadius(18.dp)
@@ -352,7 +352,7 @@ private fun PlaybackControls(isPlaying: Boolean) {
                 modifier = GlanceModifier.size(18.dp),
                 colorFilter = ColorFilter.tint(GlanceTheme.colors.onPrimary),
             )
-            Spacer(GlanceModifier.width(6.dp))
+            Spacer(GlanceModifier.width(5.dp))
             Text(
                 text = label,
                 style = TextStyle(
@@ -362,7 +362,7 @@ private fun PlaybackControls(isPlaying: Boolean) {
                 ),
             )
         }
-        Spacer(GlanceModifier.width(8.dp))
+        Spacer(GlanceModifier.width(6.dp))
         Box(
             modifier = GlanceModifier
                 .size(36.dp)

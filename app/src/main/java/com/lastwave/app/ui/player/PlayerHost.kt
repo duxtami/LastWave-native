@@ -762,9 +762,9 @@ private fun FullPlayer(
                                 modifier = Modifier.fillMaxWidth().weight(1f),
                                 contentAlignment = Alignment.Center,
                             ) {
-                                val artworkSize = (minOf(maxWidth, maxHeight) - 16.dp)
+                                val artworkSize = (minOf(maxWidth, maxHeight) - 8.dp)
                                     .coerceAtLeast(0.dp)
-                                    .coerceAtMost(350.dp)
+                                    .coerceAtMost(365.dp)
                                 Surface(
                                     shape = RoundedCornerShape(32.dp),
                                     color = MaterialTheme.colorScheme.surfaceContainerHighest,
@@ -897,7 +897,7 @@ private fun SeekBar(state: MusicPlayerState, onSeek: (Long) -> Unit) {
 private fun MainControls(state: MusicPlayerState, player: MusicPlayer) {
     Row(
         Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly,
+        horizontalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Surface(
