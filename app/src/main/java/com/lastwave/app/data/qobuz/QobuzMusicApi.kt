@@ -114,6 +114,10 @@ class QobuzMusicApi @Inject constructor(
         const val QUALITY_HI_RES_96 = 7   // Up to 24-bit / 96 kHz
         const val QUALITY_CD_LOSSLESS = 6 // 16-bit / 44.1 kHz FLAC
         const val QUALITY_MP3_320 = 5     // 320 kbps MP3
+
+        val EXCLUDED_VARIANTS = listOf(
+            "live", "acoustic", "karaoke", "instrumental", "tribute", "cover", "remix", "demo", "slowed", "reverb", "sped up", "nightcore"
+        )
     }
 
     /**
@@ -239,12 +243,6 @@ class QobuzMusicApi @Inject constructor(
         }
 
         return null
-    }
-
-    private companion object {
-        val EXCLUDED_VARIANTS = listOf(
-            "live", "acoustic", "karaoke", "instrumental", "tribute", "cover", "remix", "demo", "slowed", "reverb", "sped up", "nightcore"
-        )
     }
 
     private fun normalizeString(raw: String): String {

@@ -267,16 +267,18 @@ fun PlaylistScreen(viewModel: PlaylistViewModel = hiltViewModel()) {
                                             sourceLabel = playlist.title,
                                         )
                                     },
-                                    onPlayShuffled = {
-                                        musicPlayer.playShuffled(
-                                            playlist.tracks.map { track ->
-                                                com.lastwave.app.playback.PlayableTrack(
-                                                    title = track.name,
-                                                    artist = track.artist,
-                                                    album = track.album,
-                                                    artworkUrl = track.artworkUrl,
-                                                )
-                                            },
+                                    onShufflePlay = {
+                                        val tracks = playlist.tracks.map { track ->
+                                            com.lastwave.app.playback.PlayableTrack(
+                                                title = track.name,
+                                                artist = track.artist,
+                                                album = track.album,
+                                                artworkUrl = track.artworkUrl,
+                                            )
+                                        }.shuffled()
+                                        musicPlayer.playQueue(
+                                            tracks,
+                                            startIndex = 0,
                                             sourceLabel = playlist.title,
                                         )
                                     },
@@ -511,9 +513,9 @@ private fun PlaylistCard(
     onDelete: () -> Unit,
     onRemoveTrack: (Int) -> Unit,
     onPlay: (Int) -> Unit,
-    onShufflePlay: () -> Unit,
-    onAddTrackToPlaylist: (GeneratedTrack) -> Unit,
-    onTrackMenu: (GeneratedTrack) -> Unit,
+    onShufflePlay: () -> Unit = {},
+    onAddTrackToPlaylist: (GeneratedTrack) -> Unit = {},
+    onTrackMenu: (GeneratedTrack) -> Unit = {},
 ) {
     val clipboard = androidx.compose.ui.platform.LocalClipboardManager.current
     val isThisPlaylistPlaying = isPlaying && playbackSource == playlist.title
