@@ -20,6 +20,9 @@ import com.lastwave.app.data.music.InnerTubeMusicApi
 import com.lastwave.app.data.qobuz.QobuzMusicApi
 import com.lastwave.app.data.local.MiscSettings
 import com.lastwave.app.data.local.SettingsPreferences
+import com.lastwave.app.data.artwork.ArtworkRepository
+import com.lastwave.app.data.artwork.ArtworkKey
+import com.lastwave.app.data.artwork.ArtworkSource
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -61,6 +64,7 @@ class TrackDownloadManager @Inject constructor(
     @ApplicationContext private val context: Context,
     private val qobuzMusicApi: QobuzMusicApi,
     private val innerTube: InnerTubeMusicApi,
+    private val artworkRepository: ArtworkRepository,
     private val lrclibLyricsApi: LrclibLyricsApi,
     okHttpClient: OkHttpClient,
     private val downloadedTrackDao: DownloadedTrackDao,
@@ -157,6 +161,26 @@ class TrackDownloadManager @Inject constructor(
             var destinationFile: File? = null
 
             try {
+                // Resolve missing metadata & cover art proactively
+                var resolvedArtworkUrl = artworkUrl?.takeIf { it.isNotBlank() }
+                var resolvedAlbum = album?.takeIf { it.isNotBlank() }
+
+                if (resolvedArtworkUrl == null || resolvedAlbum == null) {
+                    val best = runCatching { innerTube.findBestMatch(title, artist) }.getOrNull()
+                    if (resolvedArtworkUrl == null) {
+                        resolvedArtworkUrl = best?.artworkUrl?.takeIf { it.isNotBlank() }
+                    }
+                    if (resolvedAlbum == null) {
+                        resolvedAlbum = best?.album?.takeIf { it.isNotBlank() }
+                    }
+                }
+
+                if (resolvedArtworkUrl == null) {
+                    resolvedArtworkUrl = runCatching {
+                        artworkRepository.getArtwork(title, artist).first().takeIf { it.isNotBlank() }
+                    }.getOrNull()
+                }
+
                 // 1. Resolve source — respect user's Qobuz preference for downloads too
                 val misc = runCatching { settingsPreferences.settings.first() }.getOrDefault(MiscSettings())
                 var resolvedUrl: String? = null
@@ -196,6 +220,8 @@ class TrackDownloadManager @Inject constructor(
                     // Fallback to YouTube Music
                     val bestMatch = innerTube.findBestMatch(title, artist)
                     val videoId = bestMatch.videoId ?: error("No audio source found for $title")
+                    if (resolvedArtworkUrl == null) resolvedArtworkUrl = bestMatch.artworkUrl
+                    if (resolvedAlbum == null) resolvedAlbum = bestMatch.album
                     val ytStream = innerTube.resolveAudioStream(videoId)
                     resolvedUrl = ytStream.url
                     val rawMime = ytStream.mimeType.orEmpty().lowercase()
@@ -218,7 +244,7 @@ class TrackDownloadManager @Inject constructor(
                 val safeFilename = sanitizeFilename("$artist - $title") + ".$extension"
 
                 // 2. Open output stream in public storage (Music/LastWave)
-                val (initialStream, uri, file) = openPublicOutputStream(safeFilename, mimeType, title, artist, album)
+                val (initialStream, uri, file) = openPublicOutputStream(safeFilename, mimeType, title, artist, resolvedAlbum)
                 destinationUri = uri
                 destinationFile = file
                 if (uri != null) activeUris[key] = uri
@@ -349,7 +375,7 @@ class TrackDownloadManager @Inject constructor(
                     lrclibLyricsApi.fetchLyrics(
                         title = title,
                         artist = artist,
-                        album = album,
+                        album = resolvedAlbum,
                         durationSeconds = if (durationMs > 0) (durationMs / 1000).toInt() else null,
                     )
                 }.getOrNull()
@@ -369,8 +395,8 @@ class TrackDownloadManager @Inject constructor(
                 val entity = DownloadedTrackEntity(
                     title = title,
                     artist = artist,
-                    album = album.orEmpty(),
-                    artworkUrl = artworkUrl,
+                    album = resolvedAlbum.orEmpty(),
+                    artworkUrl = resolvedArtworkUrl,
                     filePath = finalPath,
                     mediaStoreUri = uri?.toString(),
                     fileSizeBytes = bytesReadTotal,
