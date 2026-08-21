@@ -443,7 +443,7 @@ class InnerTubeMusicApi @Inject constructor(
                 name = title.trim(),
                 browseId = browseId,
                 artworkUrl = artworkUrl,
-                subtitle = subtitle.takeIf { it.isNotBlank() },
+                subtitle = subtitle?.takeIf { it.isNotBlank() },
             )
         }
     }

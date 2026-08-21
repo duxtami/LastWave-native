@@ -20,9 +20,8 @@ import com.lastwave.app.data.music.InnerTubeMusicApi
 import com.lastwave.app.data.qobuz.QobuzMusicApi
 import com.lastwave.app.data.local.MiscSettings
 import com.lastwave.app.data.local.SettingsPreferences
+import com.lastwave.app.data.artwork.ArtworkNormalizer
 import com.lastwave.app.data.artwork.ArtworkRepository
-import com.lastwave.app.data.artwork.ArtworkKey
-import com.lastwave.app.data.artwork.ArtworkSource
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -176,9 +175,9 @@ class TrackDownloadManager @Inject constructor(
                 }
 
                 if (resolvedArtworkUrl == null) {
-                    resolvedArtworkUrl = runCatching {
-                        artworkRepository.getArtwork(title, artist).first().takeIf { it.isNotBlank() }
-                    }.getOrNull()
+                    artworkRepository.resolve(title, artist)
+                    val cacheKey = ArtworkNormalizer.cacheKey(title, artist)
+                    resolvedArtworkUrl = artworkRepository.resolved.value[cacheKey]?.takeIf { it.isNotBlank() }
                 }
 
                 // 1. Resolve source — respect user's Qobuz preference for downloads too
