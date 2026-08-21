@@ -198,15 +198,19 @@ class TrackDownloadManager @Inject constructor(
                     val videoId = bestMatch.videoId ?: error("No audio source found for $title")
                     val ytStream = innerTube.resolveAudioStream(videoId)
                     resolvedUrl = ytStream.url
-                    val rawMime = ytStream.mimeType.orEmpty()
+                    val rawMime = ytStream.mimeType.orEmpty().lowercase()
                     if (rawMime.contains("mp4") || rawMime.contains("m4a") || rawMime.contains("aac")) {
                         extension = "m4a"
                         mimeType = "audio/mp4"
                         formatBadge = "M4A AAC"
-                    } else {
+                    } else if (rawMime.contains("webm") || rawMime.contains("opus")) {
                         extension = "webm"
                         mimeType = "audio/webm"
                         formatBadge = "OPUS"
+                    } else {
+                        extension = "m4a"
+                        mimeType = "audio/mp4"
+                        formatBadge = "AUDIO"
                     }
                     isQobuz = false
                 }
@@ -231,21 +235,18 @@ class TrackDownloadManager @Inject constructor(
 
                 while (downloadAttempt <= MAX_DOWNLOAD_RETRIES && !downloadSuccess) {
                     val requestBuilder = Request.Builder().url(resolvedUrl!!)
-                    if (!isQobuz) {
-                        requestBuilder.header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
-                        requestBuilder.header("Origin", "https://music.youtube.com")
-                        requestBuilder.header("Referer", "https://music.youtube.com/")
-                    }
+                    requestBuilder.header("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36")
+                    requestBuilder.header("Accept", "*/*")
                     val request = requestBuilder.build()
                     val response = downloadClient.newCall(request).execute()
 
                     if (!response.isSuccessful) throw IOException("HTTP ${response.code} downloading track")
 
-                    // Validate response Content-Type is audio
-                    val contentType = response.header("Content-Type").orEmpty()
-                    if (contentType.isNotBlank() && !contentType.contains("audio") && !contentType.contains("octet-stream")) {
+                    // Validate response is actual media payload and not an HTML/JSON error page
+                    val contentType = response.header("Content-Type").orEmpty().lowercase()
+                    if (contentType.contains("text/html") || contentType.contains("application/json")) {
                         response.close()
-                        throw IOException("Invalid content type: $contentType (expected audio)")
+                        throw IOException("Invalid download payload ($contentType)")
                     }
 
                     val body = response.body ?: throw IOException("Empty response body")
@@ -449,9 +450,14 @@ class TrackDownloadManager @Inject constructor(
                 put(MediaStore.Audio.Media.IS_PENDING, 1)
             }
 
-            val uri = resolver.insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, contentValues)
-                ?: resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-                ?: throw IOException("Could not create MediaStore entry for $filename")
+            val uri = runCatching { resolver.insert(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, contentValues) }.getOrNull()
+                ?: runCatching {
+                    val downloadValues = ContentValues(contentValues).apply {
+                        put(MediaStore.Downloads.MIME_TYPE, if (mimeType.isNotBlank()) mimeType else "application/octet-stream")
+                    }
+                    resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, downloadValues)
+                }.getOrNull()
+                ?: throw IOException("Could not create storage entry for $filename")
 
             val stream = resolver.openOutputStream(uri, "wt")
                 ?: resolver.openOutputStream(uri)
@@ -471,7 +477,7 @@ class TrackDownloadManager @Inject constructor(
     private fun finalizePublicFile(uri: Uri?) {
         if (uri != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val contentValues = ContentValues().apply {
-                put(MediaStore.Audio.Media.IS_PENDING, 0)
+                put(MediaStore.MediaColumns.IS_PENDING, 0)
             }
             runCatching { context.contentResolver.update(uri, contentValues, null, null) }
         }
