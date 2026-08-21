@@ -70,6 +70,8 @@ class LinkPlaybackResolver @Inject constructor(
 
                 // 3. Plain search query shared to app
                 clean.isNotBlank() -> resolveGenericQuery(clean)
+
+                else -> Unit
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to resolve link for playback: $clean", e)
@@ -93,7 +95,7 @@ class LinkPlaybackResolver @Inject constructor(
             if (playlist != null && playlist.tracks.isNotEmpty()) {
                 val playableList = playlist.tracks.map { it.toPlayable() }
                 withContext(Dispatchers.Main) {
-                    musicPlayer.playTracks(playableList, startIndex = 0, sourceLabel = playlist.title)
+                    musicPlayer.playQueue(playableList, startIndex = 0, sourceLabel = playlist.title)
                 }
                 return
             }

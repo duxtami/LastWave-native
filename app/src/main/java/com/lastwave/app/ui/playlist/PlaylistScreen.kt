@@ -46,6 +46,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.MusicNote
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.PushPin
@@ -638,7 +639,7 @@ private fun PlaylistCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun ExportBottomSheet(
+internal fun ExportBottomSheet(
     onDismiss: () -> Unit,
     onSaveCsv: () -> Unit,
     onSaveM3u: () -> Unit,

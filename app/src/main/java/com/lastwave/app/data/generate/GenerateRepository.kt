@@ -153,6 +153,8 @@ class GenerateRepository @Inject constructor(
         }
     }
 
+    suspend fun rememberInDiscoveryHistory(tracks: List<GeneratedTrack>) = markAsSeen(tracks)
+
     /** Every key shown by Settings' "Clear Discovery History" action.
      *  Recommendation generation treats this as a hard blacklist, without
      *  the normal 21-day freshness expiry used by the other modes. */

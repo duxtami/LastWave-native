@@ -127,11 +127,7 @@ fun DownloadsScreen(
             ExpressiveHeader(
                 title = "Downloads",
                 subtitle = subtitleText,
-                navigationIcon = {
-                    IconButton(onClick = onBack, modifier = Modifier.size(40.dp)) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
+                onBack = onBack,
                 actions = {
                     Box {
                         IconButton(
@@ -513,8 +509,7 @@ private fun DownloadedTrackCard(
                     artist = track.artist,
                     embeddedUrl = track.artworkUrl,
                     fallbackIcon = Icons.Filled.MusicNote,
-                    shape = ArtworkShape,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().clip(ArtworkShape),
                 )
                 if (isPlaying) {
                     PlayingWaveBars(

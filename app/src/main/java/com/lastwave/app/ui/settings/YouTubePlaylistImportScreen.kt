@@ -115,11 +115,7 @@ fun YouTubePlaylistImportScreen(
             ExpressiveHeader(
                 title = "YouTube Playlists",
                 subtitle = "Select playlists to import into LastWave",
-                navigationIcon = {
-                    IconButton(onClick = onBack, modifier = Modifier.size(40.dp)) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
+                onBack = onBack,
                 actions = {
                     if (state.searchResults.isNotEmpty()) {
                         TextButton(onClick = {
@@ -380,8 +376,7 @@ private fun YouTubePlaylistCard(
                 artist = playlist.author.orEmpty(),
                 embeddedUrl = playlist.artworkUrl,
                 fallbackIcon = Icons.Filled.MusicNote,
-                shape = ArtworkShape,
-                modifier = Modifier.size(54.dp),
+                modifier = Modifier.size(54.dp).clip(ArtworkShape),
             )
 
             Spacer(Modifier.width(14.dp))
@@ -447,8 +442,7 @@ private fun PlaylistPreviewModal(
                     artist = preview.author.orEmpty(),
                     embeddedUrl = preview.artworkUrl,
                     fallbackIcon = Icons.Filled.MusicNote,
-                    shape = ArtworkShape,
-                    modifier = Modifier.size(64.dp),
+                    modifier = Modifier.size(64.dp).clip(ArtworkShape),
                 )
                 Spacer(Modifier.width(14.dp))
                 Column(Modifier.weight(1f)) {

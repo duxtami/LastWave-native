@@ -267,8 +267,7 @@ fun YouTubeImportSheet(
                             artist = pl.author.orEmpty(),
                             embeddedUrl = pl.artworkUrl,
                             fallbackIcon = Icons.Filled.MusicNote,
-                            shape = ArtworkShape,
-                            modifier = Modifier.size(54.dp),
+                            modifier = Modifier.size(54.dp).clip(ArtworkShape),
                         )
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {

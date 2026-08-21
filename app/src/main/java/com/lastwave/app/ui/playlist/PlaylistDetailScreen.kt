@@ -769,8 +769,7 @@ private fun NativeTrackRow(
                     artist = track.artist,
                     embeddedUrl = track.artworkUrl,
                     fallbackIcon = if (isPlaying) Icons.Filled.GraphicEq else Icons.Filled.MusicNote,
-                    shape = ArtworkShape,
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().clip(ArtworkShape),
                 )
                 if (isPlaying) {
                     com.lastwave.app.ui.player.PlayingWaveBars(

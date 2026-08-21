@@ -24,6 +24,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material.icons.filled.Person
@@ -40,6 +42,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -193,6 +196,16 @@ fun TrackContextMenuSheet(
     val musicPlayer = LocalMusicPlayer.current
     val addToPlaylist = LocalAddToPlaylist.current
     var showDetailsSheet by remember { mutableStateOf(false) }
+    var resolvedGenre by remember(target) { mutableStateOf<String?>(null) }
+    var resolvingGenre by remember(target) { mutableStateOf(false) }
+
+    LaunchedEffect(target) {
+        if (target is TrackMenuTarget.Track) {
+            resolvingGenre = true
+            resolvedGenre = runCatching { genreResolverViewModel.resolve(target.name, target.artist) }.getOrNull()
+            resolvingGenre = false
+        }
+    }
 
     fun exploreGenre(genre: String) {
         if (onExploreGenre != null) onExploreGenre(genre)
@@ -248,7 +261,6 @@ fun TrackContextMenuSheet(
 
                 val rows = buildList<@Composable (GroupPosition) -> Unit> {
                     val t = target
-                    val (resolvedGenre, resolvingGenre) = genreResolverViewModel.stateFor(t.name, t.artist)
                     if (resolvingGenre || !resolvedGenre.isNullOrBlank()) {
                         add { pos ->
                             MenuInfoRow(
@@ -257,7 +269,7 @@ fun TrackContextMenuSheet(
                                 loading = resolvingGenre,
                                 position = pos,
                                 onClick = if (!resolvingGenre && !resolvedGenre.isNullOrBlank()) {
-                                    { exploreGenre(resolvedGenre); onDismiss() }
+                                    { exploreGenre(resolvedGenre!!); onDismiss() }
                                 } else null,
                             )
                         }

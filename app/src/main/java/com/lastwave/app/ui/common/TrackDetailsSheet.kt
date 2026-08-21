@@ -122,7 +122,7 @@ class TrackDetailsViewModel @Inject constructor(
             // Resolve real audio resolution specs in background
             withContext(Dispatchers.IO) {
                 val qobuzStream = runCatching {
-                    qobuzMusicApi.resolveStream(title, artist, preferredQuality = QobuzMusicApi.QUALITY_MAX_24_192)
+                    qobuzMusicApi.resolveStream(title, artist, preferredQuality = QobuzMusicApi.QUALITY_MAX_HI_RES)
                 }.getOrNull()
 
                 if (qobuzStream != null) {
@@ -134,8 +134,9 @@ class TrackDetailsViewModel @Inject constructor(
                     }
                     val codec = if (qobuzStream.formatId == QobuzMusicApi.QUALITY_MP3_320) "MPEG Layer 3 (MP3)" else "Free Lossless Audio Codec (FLAC)"
                     val depthRate = "${qobuzStream.bitDepth}-bit / ${qobuzStream.samplingRate} kHz (${qobuzStream.bitrateKbps ?: 0} kbps)"
-                    val durMinutes = (qobuzStream.durationSec / 60).toInt()
-                    val durSeconds = (qobuzStream.durationSec % 60).toInt()
+                    val durText = downloaded?.durationSeconds?.takeIf { it > 0 }?.let { dur ->
+                        "%d:%02d".format(dur / 60, dur % 60)
+                    } ?: "\u2014"
 
                     _specs.value = _specs.value?.copy(
                         qualityBadge = badge,
@@ -143,7 +144,7 @@ class TrackDetailsViewModel @Inject constructor(
                         bitDepthSampleRate = depthRate,
                         provider = "Qobuz Lossless Master CDN",
                         isQobuz = true,
-                        durationText = "%d:%02d".format(durMinutes, durSeconds),
+                        durationText = durText,
                     )
                 } else {
                     // Fallback YouTube stream specs
@@ -217,7 +218,7 @@ fun TrackDetailsSheet(
                 .padding(horizontal = 20.dp)
                 .padding(bottom = 28.dp + safeDrawingBottomPadding())
                 .verticalScroll(rememberScrollState()),
-            verticalAlignment = Alignment.CenterHorizontally,
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // Header: Cover Art + Badge
             Box(
@@ -230,8 +231,7 @@ fun TrackDetailsSheet(
                     artist = artist,
                     embeddedUrl = artworkUrl,
                     fallbackIcon = Icons.Filled.MusicNote,
-                    shape = RoundedCornerShape(20.dp),
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(20.dp)),
                 )
                 Surface(
                     shape = RoundedCornerShape(bottomStart = 8.dp, topEnd = 20.dp),
