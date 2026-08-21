@@ -140,8 +140,8 @@ class HomeRepository @Inject constructor(
                 RecentTrack(
                     name = it.name,
                     artist = it.artist,
+                    image = it.image,
                     url = it.url,
-                    artworkUrl = it.artworkUrl,
                     date = null,
                 )
             }
