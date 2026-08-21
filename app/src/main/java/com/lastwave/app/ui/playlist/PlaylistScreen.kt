@@ -266,6 +266,31 @@ fun PlaylistScreen(viewModel: PlaylistViewModel = hiltViewModel()) {
                                             startIndex = startIndex,
                                             sourceLabel = playlist.title,
                                         )
+                                    },
+                                    onPlayShuffled = {
+                                        musicPlayer.playShuffled(
+                                            playlist.tracks.map { track ->
+                                                com.lastwave.app.playback.PlayableTrack(
+                                                    title = track.name,
+                                                    artist = track.artist,
+                                                    album = track.album,
+                                                    artworkUrl = track.artworkUrl,
+                                                )
+                                            },
+                                            sourceLabel = playlist.title,
+                                        )
+                                    },
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        state.toastMessage?.let { msg ->
+            LaunchedEffect(msg) {
+                kotlinx.coroutines.delay(3000)
                 viewModel.dismissToast()
             }
             Surface(
