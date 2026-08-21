@@ -126,7 +126,7 @@ fun PlaylistDetailScreen(
         coverPickerPending = false
     }
 
-    var menuTarget by remember { mutableStateOf<GeneratedTrack>?>(null) }
+    var menuTarget by remember { mutableStateOf<GeneratedTrack?>(null) }
     var overflowMenuOpen by remember { mutableStateOf(false) }
 
     val listState = rememberLazyListState()

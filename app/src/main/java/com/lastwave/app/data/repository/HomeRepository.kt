@@ -10,10 +10,15 @@ import com.lastwave.app.data.model.TopArtistsEnvelope
 import com.lastwave.app.data.model.TopTracksEnvelope
 import com.lastwave.app.data.model.TopTracksFullEnvelope
 import com.lastwave.app.data.model.UserInfoEnvelope
+import com.lastwave.app.data.music.InnerTubeMusicApi
 import com.lastwave.app.data.network.LastFmApiService
 import com.lastwave.app.data.network.LastFmErrors
 import com.lastwave.app.data.network.LastFmException
 import androidx.compose.runtime.Immutable
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -50,12 +55,6 @@ data class HomeInitialData(
     val recent: RecentTracksPage,
     val topTracks: List<HomeTrack>,
 )
-
-import com.lastwave.app.data.music.InnerTubeMusicApi
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 
 @Singleton
 class HomeRepository @Inject constructor(
