@@ -74,8 +74,6 @@ class CsvPlaylistImporter @Inject constructor(
                     artist = raw.artist.trim(),
                     album = raw.album?.trim()?.ifBlank { match.album },
                     artworkUrl = match.artworkUrl,
-                    videoId = match.videoId,
-                    matched = true,
                 )
             } else {
                 // Never attach a wrong song: retain original metadata with clean state
@@ -84,8 +82,6 @@ class CsvPlaylistImporter @Inject constructor(
                     artist = raw.artist.trim().ifBlank { "Unknown Artist" },
                     album = raw.album?.trim(),
                     artworkUrl = null,
-                    videoId = null,
-                    matched = false,
                 )
             }
 

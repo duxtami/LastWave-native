@@ -26,8 +26,6 @@ class PlaylistImportManager @Inject constructor(
                 artist = yt.artist,
                 album = yt.album,
                 artworkUrl = yt.artworkUrl,
-                videoId = yt.videoId,
-                matched = true,
             )
         }
 

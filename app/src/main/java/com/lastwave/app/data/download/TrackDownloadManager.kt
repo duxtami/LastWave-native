@@ -148,7 +148,7 @@ class TrackDownloadManager @Inject constructor(
                     qobuzMusicApi.resolveStream(
                         title = title,
                         artist = artist,
-                        preferredQuality = QobuzMusicApi.QUALITY_MAX_24_192,
+                        preferredQuality = QobuzMusicApi.QUALITY_MAX_HI_RES,
                     )
                 }.getOrNull()
 
@@ -163,7 +163,7 @@ class TrackDownloadManager @Inject constructor(
                         else -> "FLAC"
                     }
                     isQobuz = true
-                    durationMs = (qobuzStream.durationSec * 1000).toLong()
+                    durationMs = 0L
                 } else {
                     // Fallback to YouTube Music
                     val bestMatch = innerTube.findBestMatch(title, artist)

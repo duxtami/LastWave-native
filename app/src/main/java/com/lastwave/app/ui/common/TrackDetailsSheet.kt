@@ -134,7 +134,8 @@ class TrackDetailsViewModel @Inject constructor(
                     }
                     val codec = if (qobuzStream.formatId == QobuzMusicApi.QUALITY_MP3_320) "MPEG Layer 3 (MP3)" else "Free Lossless Audio Codec (FLAC)"
                     val depthRate = "${qobuzStream.bitDepth}-bit / ${qobuzStream.samplingRate} kHz (${qobuzStream.bitrateKbps ?: 0} kbps)"
-                    val durText = downloaded?.durationSeconds?.takeIf { it > 0 }?.let { dur ->
+                    val durText = downloaded?.durationMs?.takeIf { it > 0L }?.let { ms ->
+                        val dur = (ms / 1000).toInt()
                         "%d:%02d".format(dur / 60, dur % 60)
                     } ?: "\u2014"
 
