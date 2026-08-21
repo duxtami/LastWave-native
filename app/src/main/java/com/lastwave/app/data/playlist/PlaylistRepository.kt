@@ -43,12 +43,17 @@ data class SavedPlaylist(
 private const val MAX_SAVED_PLAYLISTS = 20
 private const val TAG = "PlaylistRepository"
 
+import com.lastwave.app.data.music.InnerTubeMusicApi
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+
 @Singleton
 class PlaylistRepository @Inject constructor(
     private val dao: SavedPlaylistDao,
     private val fileExportHelper: FileExportHelper,
     private val exportEvents: PlaylistExportEvents,
     private val publicMirror: PlaylistPublicMirror,
+    private val innerTube: InnerTubeMusicApi,
 ) {
     private val json = Json { ignoreUnknownKeys = true }
     private val _changes = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
@@ -72,6 +77,20 @@ class PlaylistRepository @Inject constructor(
         startupSync.await()
     }
 
+    private val playableCheckSemaphore = kotlinx.coroutines.sync.Semaphore(6)
+
+    private suspend fun filterPlayable(tracks: List<GeneratedTrack>): List<GeneratedTrack> = coroutineScope {
+        if (tracks.isEmpty()) return@coroutineScope emptyList()
+        val checks = tracks.map { track ->
+            async(Dispatchers.IO) {
+                playableCheckSemaphore.withPermit {
+                    if (innerTube.isPlayable(track.name, track.artist)) track else null
+                }
+            }
+        }
+        checks.awaitAll().filterNotNull()
+    }
+
     /** Newest first — matches _plRenderSaved()'s display order (the
      *  original reverses its append-ordered array before rendering). */
     suspend fun getAll(): List<SavedPlaylist> {
@@ -92,7 +111,8 @@ class PlaylistRepository @Inject constructor(
      */
     suspend fun save(title: String, subtitle: String, mode: String, tracks: List<GeneratedTrack>, discoverSignature: String? = null): SavedPlaylist {
         val existing = getAll()
-        val firstKey = tracks.firstOrNull()?.key
+        val playableTracks = if (mode == "custom" && tracks.isEmpty()) emptyList() else filterPlayable(tracks)
+        val firstKey = playableTracks.firstOrNull()?.key
         existing.firstOrNull {
             !it.isCompleted &&
                 it.mode == mode &&
@@ -106,7 +126,7 @@ class PlaylistRepository @Inject constructor(
             title = title,
             subtitle = subtitle,
             mode = mode,
-            tracksJson = json.encodeToString(tracks.map { it.toStored() }),
+            tracksJson = json.encodeToString(playableTracks.map { it.toStored() }),
             createdAtMillis = System.currentTimeMillis(),
             discoverSignature = discoverSignature,
         )
@@ -202,6 +222,7 @@ class PlaylistRepository @Inject constructor(
         val playlist = entity.toDomain()
         if (playlist.mode != "custom") return playlist
         if (!allowDuplicate && playlist.tracks.any { it.key == track.key }) return playlist
+        if (!innerTube.isPlayable(track.name, track.artist)) return playlist
         val updatedTracksJson = json.encodeToString((playlist.tracks + track).map { it.toStored() })
         val updated = entity.copy(tracksJson = updatedTracksJson)
         dao.upsert(updated)
