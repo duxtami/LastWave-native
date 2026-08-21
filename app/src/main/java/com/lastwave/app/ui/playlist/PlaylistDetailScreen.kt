@@ -651,6 +651,7 @@ fun PlaylistDetailScreen(
                 }
             }
         }
+    }
 
         // Toasts
         state.toastMessage?.let { msg ->
