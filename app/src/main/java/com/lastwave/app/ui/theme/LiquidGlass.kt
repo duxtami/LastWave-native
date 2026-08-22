@@ -20,7 +20,6 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
-import androidx.compose.ui.graphics.drawscope.drawOutline
 import androidx.compose.ui.unit.dp
 
 /**
@@ -73,8 +72,8 @@ fun Modifier.liquidGlassChrome(shape: Shape, enabled: Boolean): Modifier =
         }
 
         // Hairline specular border, brightest where a light source would hit.
-        drawOutline(
-            outline = outline,
+        drawPath(
+            path = path,
             brush = Brush.linearGradient(
                 0f to Color.White.copy(alpha = 0.34f),
                 0.45f to Color.White.copy(alpha = 0.07f),

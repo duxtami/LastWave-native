@@ -198,8 +198,9 @@ class InnerTubeMusicApi @Inject constructor(
         var token = playlistShelfContinuationToken(root)
         var page = 0
         while (!token.isNullOrBlank() && page < MAX_CONTINUATION_PAGES) {
+            val currentToken = token ?: break
             val nextPage = runCatching {
-                browseContinuation(browseId, token, authenticated = authenticatedAs)
+                browseContinuation(browseId, currentToken, authenticated = authenticatedAs)
             }.getOrNull() ?: break
             val pageSongs = parseSongRenderers(nextPage)
             if (pageSongs.isEmpty()) break
@@ -433,7 +434,8 @@ class InnerTubeMusicApi @Inject constructor(
         var token = playlistShelfContinuationToken(root)
         var page = 0
         while (!token.isNullOrBlank() && page < MAX_CONTINUATION_PAGES) {
-            val nextPage = runCatching { browseContinuation(browseId, token, authenticated = true) }
+            val currentToken = token ?: break
+            val nextPage = runCatching { browseContinuation(browseId, currentToken, authenticated = true) }
                 .getOrNull() ?: break
             absorb(nextPage)
             token = playlistShelfContinuationToken(nextPage)
@@ -876,25 +878,24 @@ class InnerTubeMusicApi @Inject constructor(
     suspend fun fetchSongDetails(videoId: String): YouTubeMusicTrack? = withContext(Dispatchers.IO) {
         if (videoId.isBlank()) return@withContext null
 
-        // 1. Try InnerTube /next (returns exact artist, title, album, artwork from YouTube Music)
+        // 1. Try InnerTube /player or /next (returns exact artist, title, album, artwork from YouTube Music)
         try {
-            val key = webKey()
-            val body = buildJsonObject {
-                put("context", buildJsonObject {
-                    put("client", buildJsonObject {
-                        put("clientName", "WEB_REMIX")
-                        put("clientVersion", WEB_REMIX_VERSION)
-                        put("hl", "en")
-                        put("gl", "US")
-                    })
-                })
-                put("videoId", videoId)
-            }
-            val root = post("$YOUTUBE_API/next?key=$key&prettyPrint=false", body, "WEB_REMIX", WEB_REMIX_VERSION)
+            val config = getWebConfig()
+            val root = post(
+                url = "$MUSIC_API/player?key=${config.apiKey}&prettyPrint=false",
+                body = buildJsonObject {
+                    put("context", context("WEB_REMIX", config.clientVersion, config.visitorData))
+                    put("videoId", videoId)
+                },
+                clientName = "WEB_REMIX",
+                clientVersion = config.clientVersion,
+                userAgent = WEB_USER_AGENT,
+            )
             val videoDetails = root.obj("videoDetails")
             var title = videoDetails?.string("title")
             var artist = videoDetails?.string("author")
-            val artworkUrl = videoDetails?.obj("thumbnail")?.array("thumbnails")?.lastOrNull()?.let { (it as? JsonObject)?.string("url") }
+            val thumbs = videoDetails?.obj("thumbnail")?.array("thumbnails")
+            val artworkUrl = thumbs?.lastOrNull()?.let { (it as? JsonObject)?.string("url") }
 
             if (!title.isNullOrBlank() && !artist.isNullOrBlank()) {
                 if (artist.endsWith(" - Topic")) {

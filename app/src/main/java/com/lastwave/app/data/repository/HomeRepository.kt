@@ -351,11 +351,13 @@ class HomeRepository @Inject constructor(
             // transient socket reset emptied the whole screen. Each surface
             // now falls back independently; only a session-level failure
             // (handled by requireSession() inside each fetch) still fails all.
-            val recent = recentResult.getOrElse { emptyList() }
+            val recent = recentResult.getOrElse {
+                RecentTracksPage(nowPlaying = null, tracks = emptyList(), page = 1, totalPages = 1)
+            }
             val stats = statsResult.getOrElse {
                 HomeStats(scrobbles = 0L, trackCount = 0L, artistCount = 0L, albumCount = 0L, avatarUrl = null)
             }
-            val topTracks = topTracksResult.getOrElse { emptyList() }
+            val topTracks = topTracksResult.getOrElse { emptyList<HomeTrack>() }
 
             // Everything failed = genuinely offline → surface a retryable
             // failure. Any partial success renders what we have.
