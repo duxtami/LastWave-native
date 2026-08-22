@@ -159,8 +159,10 @@ class TrackDownloadManager @Inject constructor(
 
             var destinationUri: Uri? = null
             var destinationFile: File? = null
+            var tempDownloadFile: File? = null
 
             try {
+
                 // Resolve missing metadata & cover art proactively
                 var resolvedArtworkUrl = artworkUrl?.takeIf { it.isNotBlank() }
                 var resolvedAlbum = album?.takeIf { it.isNotBlank() }
@@ -244,13 +246,10 @@ class TrackDownloadManager @Inject constructor(
 
                 val safeFilename = sanitizeFilename("$artist - $title") + ".$extension"
 
-                showDownloadNotification(notifId, key, title, artist, 0, false, formatBadge)
+                // 2. Download raw stream to local temp cache file
+                val rawFile = File.createTempFile("dl_raw_", ".$extension", context.cacheDir)
+                tempDownloadFile = rawFile
 
-                var tempDownloadFile: File? = null
-                try {
-                    // 2. Download raw stream to local temp cache file
-                    val rawFile = File.createTempFile("dl_raw_", ".$extension", context.cacheDir)
-                    tempDownloadFile = rawFile
                     var bytesReadTotal = 0L
                     var totalLength = -1L
                     var downloadAttempt = 0
