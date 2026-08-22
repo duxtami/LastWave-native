@@ -260,7 +260,7 @@ private fun PlayerWidget(state: WidgetUiState) {
                     style = TextStyle(
                         color = if (state.isPlaying) GlanceTheme.colors.primary else GlanceTheme.colors.onSurfaceVariant,
                         fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        fontWeight = FontWeight.Bold,
                     ),
                 )
             }
@@ -313,11 +313,10 @@ private fun MiniArtwork(art: Bitmap?, size: Int, isPlaying: Boolean, animationFr
             ) {
                 Row(
                     modifier = GlanceModifier
-                        .background(ColorProvider(Color(0xCC000000)))
+                        .background(GlanceTheme.colors.surface)
                         .cornerRadius(6.dp)
                         .padding(horizontal = 4.dp, vertical = 3.dp),
                     verticalAlignment = Alignment.Bottom,
-                    horizontalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
                     Box(
                         modifier = GlanceModifier
@@ -326,6 +325,7 @@ private fun MiniArtwork(art: Bitmap?, size: Int, isPlaying: Boolean, animationFr
                             .cornerRadius(1.dp)
                             .background(GlanceTheme.colors.primary),
                     ) {}
+                    Spacer(GlanceModifier.width(2.dp))
                     Box(
                         modifier = GlanceModifier
                             .width(2.5.dp)
@@ -333,6 +333,7 @@ private fun MiniArtwork(art: Bitmap?, size: Int, isPlaying: Boolean, animationFr
                             .cornerRadius(1.dp)
                             .background(GlanceTheme.colors.primary),
                     ) {}
+                    Spacer(GlanceModifier.width(2.dp))
                     Box(
                         modifier = GlanceModifier
                             .width(2.5.dp)
