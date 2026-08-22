@@ -120,4 +120,8 @@ dependencies {
     // Resolves YouTube's current protected/ciphered playback URLs locally.
     // InnerTube remains responsible for YouTube Music search and metadata.
     implementation(libs.newpipe.extractor)
+
+    // Audio metadata tagger (ID3, Vorbis, MP4, FLAC) for embedding cover art and tags in downloads
+    implementation("com.github.AdrienPoupa:jaudiotaggerAndroid:2.2.3")
 }
+
