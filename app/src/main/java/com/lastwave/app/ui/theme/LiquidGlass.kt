@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.drawscope.drawOutline
 import androidx.compose.ui.unit.dp
 
 /**
@@ -52,7 +53,7 @@ fun Modifier.liquidGlassChrome(shape: Shape, enabled: Boolean): Modifier =
         drawContent()
         val outline = shape.createOutline(size, layoutDirection, this)
         val path = when (outline) {
-            is Outline.Rounded -> outline.path
+            is Outline.Rounded -> Path().apply { addRoundRect(outline.roundRect) }
             is Outline.Generic -> outline.path
             is Outline.Rectangle -> Path().apply { addRect(outline.rect) }
         }

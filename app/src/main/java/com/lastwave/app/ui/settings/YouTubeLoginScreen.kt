@@ -107,7 +107,7 @@ fun YouTubeLoginScreen(
                 },
             )
 
-            AnimatedVisibility(
+            androidx.compose.animation.AnimatedVisibility(
                 visible = state.connectedName != null,
                 enter = fadeIn(),
                 exit = fadeOut(),

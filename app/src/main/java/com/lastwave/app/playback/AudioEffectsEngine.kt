@@ -141,12 +141,12 @@ class AudioEffectsEngine @Inject constructor(
         }
         runCatching {
             val bass = bassBoost ?: BassBoost(EFFECT_PRIORITY, sessionId).also { bassBoost = it }
-            if (bass.supportsStrength()) bass.setStrength(ENHANCER_BASS_STRENGTH)
+            if (bass.strengthSupported) bass.setStrength(ENHANCER_BASS_STRENGTH)
             bass.enabled = true
         }
         runCatching {
             val virt = virtualizer ?: Virtualizer(EFFECT_PRIORITY, sessionId).also { virtualizer = it }
-            if (virt.supportsStrength()) virt.setStrength(ENHANCER_VIRTUALIZER_STRENGTH)
+            if (virt.strengthSupported) virt.setStrength(ENHANCER_VIRTUALIZER_STRENGTH)
             virt.enabled = true
         }
         runCatching {

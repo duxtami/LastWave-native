@@ -7,7 +7,9 @@ import com.lastwave.app.data.playlist.SavedPlaylist
 import java.util.concurrent.ConcurrentHashMap
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -204,9 +206,9 @@ class YtMusicSyncManager @Inject constructor(
         }
         val now = System.currentTimeMillis()
         val matchLimiter = Semaphore(MATCH_CONCURRENCY)
-        val resolvedVideoIds = kotlinx.coroutines.coroutineScope {
+        val resolvedVideoIds = coroutineScope {
             playlist.tracks.map { track ->
-                kotlinx.coroutines.async {
+                async {
                     matchLimiter.withPermit {
                         val cacheKey = "${track.name}|${track.artist}".lowercase().trim()
                         val negativeUntil = negativeMatchCache[cacheKey] ?: 0L

@@ -40,6 +40,12 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -608,9 +614,9 @@ class MusicPlayer @Inject constructor(
             if (pending.isEmpty()) return@launch
             // Match all pending tracks in parallel instead of one chained
             // network round-trip after the other.
-            val enrichedPairs = kotlinx.coroutines.coroutineScope {
+            val enrichedPairs = coroutineScope {
                 pending.map { item ->
-                    kotlinx.coroutines.async {
+                    async {
                         item to runCatching { matchMetadata(item.original) }.getOrNull()
                     }
                 }.awaitAll()

@@ -226,7 +226,7 @@ class HomeViewModel @Inject constructor(
                 name = np.name,
                 artist = np.artist.displayName,
                 artworkUrl = np.artworkUrl,
-                timestampMillis = if (sameTrackStillPlaying) previous.timestampMillis else System.currentTimeMillis(),
+                timestampMillis = if (sameTrackStillPlaying && previous != null) previous.timestampMillis else System.currentTimeMillis(),
                 playCount = 0,
                 isNowPlaying = true,
             )

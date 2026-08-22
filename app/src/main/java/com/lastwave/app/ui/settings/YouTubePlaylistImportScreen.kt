@@ -155,8 +155,8 @@ fun YouTubePlaylistImportScreen(
                         else -> emptyList()
                     }
                     if (activeList.isNotEmpty()) {
+                        val allSelected = activeList.all { it.id in state.selectedPlaylistIds }
                         TextButton(onClick = {
-                            val allSelected = activeList.all { it.id in state.selectedPlaylistIds }
                             viewModel.selectAll(!allSelected)
                         }) {
                             Text(if (allSelected) "Deselect All" else "Select All")
