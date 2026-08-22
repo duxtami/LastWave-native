@@ -107,6 +107,9 @@ class HomeRepository @Inject constructor(
         val session = requireSession()
         val targetUser = username ?: session.username
         val cacheKey = "$targetUser:$page:$limit"
+        if (forceRefresh) {
+            inFlightRecent.remove(cacheKey)
+        }
 
         val deferred = inFlightRecent.getOrPut(cacheKey) {
             inFlightScope.async {
@@ -191,6 +194,9 @@ class HomeRepository @Inject constructor(
         val session = requireSession()
         val targetUser = username ?: session.username
         val cacheKey = targetUser.ifBlank { "guest" }
+        if (forceRefresh) {
+            inFlightStats.remove(cacheKey)
+        }
 
         val deferred = inFlightStats.getOrPut(cacheKey) {
             inFlightScope.async {
@@ -317,7 +323,10 @@ class HomeRepository @Inject constructor(
         val cacheKey = targetUser.ifBlank { "guest" }
 
         val now = System.currentTimeMillis()
-        if (!forceRefresh && cachedInitialData?.first == cacheKey && (now - cachedInitialDataTimestamp < 30_000L)) {
+        if (forceRefresh) {
+            inFlightInitialData.remove(cacheKey)
+            cachedInitialData = null
+        } else if (cachedInitialData?.first == cacheKey && (now - cachedInitialDataTimestamp < 30_000L)) {
             return Result.success(cachedInitialData!!.second)
         }
 
