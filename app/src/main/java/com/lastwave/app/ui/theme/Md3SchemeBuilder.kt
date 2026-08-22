@@ -141,29 +141,26 @@ object Md3SchemeBuilder {
         // outline and scrim stay fully opaque so contrast, scrims and the
         // window backdrop are untouched. Elevation hierarchy is preserved by
         // making higher containers slightly MORE opaque, mirroring how iOS's
-        // materials get denser as they climb. With liquidGlass == false this
-        // whole pass is skipped and every color is bit-identical to before.
         if (!liquidGlass) return scheme
 
         return scheme.copy(
             surfaceContainer = scheme.surfaceContainer.copy(alpha = GLASS_CONTAINER_ALPHA),
             surfaceContainerHigh = scheme.surfaceContainerHigh.copy(alpha = GLASS_CONTAINER_ALPHA + 0.02f),
             surfaceContainerHighest = scheme.surfaceContainerHighest.copy(alpha = GLASS_CONTAINER_ALPHA + 0.04f),
-            surfaceVariant = scheme.surfaceVariant.copy(alpha = 0.92f),
-            primaryContainer = scheme.primaryContainer.copy(alpha = GLASS_ACCENT_ALPHA),
-            secondaryContainer = scheme.secondaryContainer.copy(alpha = GLASS_ACCENT_ALPHA),
-            tertiaryContainer = scheme.tertiaryContainer.copy(alpha = GLASS_ACCENT_ALPHA),
+            surfaceVariant = scheme.surfaceVariant.copy(alpha = 0.98f),
+            primaryContainer = scheme.primaryContainer,
+            secondaryContainer = scheme.secondaryContainer,
+            tertiaryContainer = scheme.tertiaryContainer,
         )
     }
 
     /** Base opacity for floating container surfaces while glass is on.
      *  High enough that scrolling content underneath never fights with
-     *  card/label text (iOS dark materials sit in roughly the same band). */
-    private const val GLASS_CONTAINER_ALPHA = 0.80f
+     *  card/label text, icons, or progress bars. */
+    private const val GLASS_CONTAINER_ALPHA = 0.94f
 
-    /** Accent containers (badges, pills, selected nav item) stay almost
-     *  solid — their on*Container label colors need the contrast. */
-    private const val GLASS_ACCENT_ALPHA = 0.90f
+    /** Accent containers stay fully solid for maximum contrast and legibility. */
+    private const val GLASS_ACCENT_ALPHA = 1.0f
 
     /**
      * HSL(h in 0-360, s in 0-100, l in 0-100) -> Compose Color.
