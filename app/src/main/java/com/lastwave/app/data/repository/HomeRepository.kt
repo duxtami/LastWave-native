@@ -346,13 +346,28 @@ class HomeRepository @Inject constructor(
             val statsResult = statsDeferred.await()
             val topTracksResult = topTracksDeferred.await()
 
-            val recent = recentResult.getOrThrow()
+            // Degrade gracefully: one flaky sub-request (stats/top-tracks, and
+            // now recents too) used to fail the ENTIRE Home payload — a single
+            // transient socket reset emptied the whole screen. Each surface
+            // now falls back independently; only a session-level failure
+            // (handled by requireSession() inside each fetch) still fails all.
+            val recent = recentResult.getOrElse { emptyList() }
             val stats = statsResult.getOrElse {
                 HomeStats(scrobbles = 0L, trackCount = 0L, artistCount = 0L, albumCount = 0L, avatarUrl = null)
             }
             val topTracks = topTracksResult.getOrElse { emptyList() }
 
-            Result.success(HomeInitialData(stats, recent, topTracks))
+            // Everything failed = genuinely offline → surface a retryable
+            // failure. Any partial success renders what we have.
+            if (recentResult.isFailure && statsResult.isFailure && topTracksResult.isFailure) {
+                Result.failure(
+                    recentResult.exceptionOrNull()
+                        ?: statsResult.exceptionOrNull()
+                        ?: IllegalStateException("Home data unavailable"),
+                )
+            } else {
+                Result.success(HomeInitialData(stats, recent, topTracks))
+            }
         }
     } catch (e: Exception) {
         Result.failure(e)
